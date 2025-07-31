@@ -1,0 +1,101 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  4.x                                   |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      T;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 0 0 1 0 0 0];
+
+//internalField   uniform 300;
+
+internalField   #codeStream
+{	
+	codeInclude
+	#{
+		#include "fvCFD.H"
+	#};
+		
+	codeOptions
+	#{
+		-I$(LIB_SRC)/finiteVolume/lnInclude \
+		-I$(LIB_SRC)/meshTools/lnInclude
+	#};
+		
+	codeLibs
+	#{
+		-lmeshTools \
+		-lfiniteVolume
+	#};
+		
+	code
+	#{
+		const IOdictionary& d = static_cast<const IOdictionary&>(dict);
+		const fvMesh& mesh = refCast<const fvMesh>(d.db());
+		scalarField T(mesh.nCells());
+		
+		const scalar H=0.4;
+		const scalar g = 9.81;
+		const scalar N = 1.0;
+		const scalar rho =1000.0;
+		const scalar gm = N*N/g;
+			
+		forAll(T, i)
+		{
+			// Get Cell positions
+			const scalar x = mesh.C()[i][0]; 
+			const scalar y = mesh.C()[i][1];
+
+			//const scalar z = mesh.C()[i][2];
+			
+			T[i]=gm*(H-y);// linear
+			// T[i]=gm*H*((1-y/H)-pow(2.718281828459045,-(pow(1-y/H-0.01,2))/0.025)+1); // halocline
+		}
+		T.writeEntry("",os);  // Write to input dictionary
+		Pout << "Initialization of internalField"; 
+	#};
+};
+
+boundaryField
+{
+    top
+    {
+        type            zeroGradient;
+    }
+
+    left
+    {
+         type            zeroGradient;
+//        type            fixedValue;
+//        value           uniform 300;
+    }
+
+    right
+    {
+         type            zeroGradient;
+//        type            fixedValue;
+//        value           uniform 300;
+    }
+
+    down
+    {
+        type            zeroGradient;
+    }
+
+    frontAndBack
+    {
+        type            empty;
+    }
+}
+
+// ************************************************************************* //
+
