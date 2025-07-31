@@ -1,0 +1,224 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  3.0.0                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+//=============================== CONTROLS ====================================
+
+R 0.26; // pipe radius
+L 2.6; // pipe length
+
+
+scale ($L $R $R);
+
+
+// grading
+
+expRatWall_radial   6; // radial scaling (>1 for larger outer cells)
+expRatWall_axial  5; // axial scaling (>1 for larger far-from-nozzle cells)
+
+convertToMeters 1;
+
+Bscale 0.15; // governs the H-area size. Bscale = 1 corresponds 0.61 x 0.61 block. 
+
+expansion 1; // outer radius to nozzle radius ratio. 1 for cylinder, >1 for expanding frustum, <1 for collpsing one. 
+
+
+// number of cells
+
+Nradii 75; // cells per pipe radius
+
+
+//=============================================================================
+
+// block border points
+x1 #calc "0.8*$Bscale";
+x3 #calc "0.610535*$Bscale";
+x1exp #calc "$expansion*$x1";
+x3exp #calc "$expansion*$x3";
+
+NRinner #calc "round(  (1 + $expRatWall_radial)/($expRatWall_radial + 2*1/$x1 - 1) * $Nradii)";
+NRouter #calc "$Nradii-$NRinner"; 
+Nx  #calc "round( 1.5* $L/$R * ($NRinner + (1+$expRatWall_radial)/2*$NRouter) / ((1+$expRatWall_axial)/2)  )";
+
+// spline points
+x11    #calc "1.12269e-01*$Bscale";
+x79   #calc "7.92025e-01*$Bscale";
+x22  #calc "2.22463e-01*$Bscale";
+x76  #calc "7.62587e-01*$Bscale";
+x32  #calc "3.26692e-01*$Bscale";
+x72  #calc "7.24996e-01*$Bscale";
+x42  #calc "4.21177e-01*$Bscale";
+x68  #calc "6.86516e-01*$Bscale";
+x50  #calc "5.02076e-01*$Bscale";
+x65  #calc "6.52300e-01*$Bscale";
+x56  #calc "5.66526e-01*$Bscale";
+x62  #calc "6.25913e-01*$Bscale";
+
+x70exp #calc "$expansion*7.07107e-01";
+
+x11exp  #calc "$expansion*$x11";
+x79exp  #calc "$expansion*$x79";
+x22exp  #calc "$expansion*$x22";
+x76exp  #calc "$expansion*$x76";
+x32exp  #calc "$expansion*$x32";
+x72exp  #calc "$expansion*$x72";
+x42exp  #calc "$expansion*$x42";
+x68exp  #calc "$expansion*$x68";
+x50exp  #calc "$expansion*$x50";
+x65exp  #calc "$expansion*$x65";
+x56exp  #calc "$expansion*$x56";
+x62exp  #calc "$expansion*$x62";
+
+
+
+arc38 #calc "$expansion*0.38268343236508978";
+arc92 #calc "$expansion*0.92387953251128674";
+
+// all the vertices are in non-dimensional units
+// pipe assumed to have length and radius of 1
+vertices
+(
+        (0.00000e+00 0.00000e+00 0.00000e+00)
+	(0.00000e+00 0.00000e+00 $x1)
+	(0.00000e+00 0.00000e+00 1.00000e+00)
+	(0.00000e+00 $x3 $x3)
+	(0.00000e+00 $x1 0.00000e+00)
+	(0.00000e+00 1.00000e+00 0.00000e+00)
+	(0.00000e+00 7.07107e-01 7.07107e-01)
+
+	(1 0.00000e+00 0.00000e+00)
+	(1 0.00000e+00 $x1exp)
+	(1 0.00000e+00 $expansion)
+	(1 $x3exp $x3exp)
+	(1 $x1exp 0.00000e+00)
+	(1 $expansion 0.00000e+00)
+	(1 $x70exp $x70exp)
+);
+
+blocks
+(
+    hex (0 7 11 4 1 8 10 3) ($Nx $NRinner $NRinner) simpleGrading ($expRatWall_axial 1 1) // inner core
+    hex (4 11 12 5 3 10 13 6) ($Nx $NRouter $NRinner) simpleGrading ($expRatWall_axial $expRatWall_radial 1) // outer shell
+    hex (3 10 13 6 1 8 9 2) ($Nx $NRouter $NRinner) simpleGrading ($expRatWall_axial $expRatWall_radial 1) // outer shell
+);
+
+edges
+(
+	BSpline 1 3 (
+		//(0.00000e+00 0.00000e+00 $x1)
+		(0.00000e+00 $x11 $x79)
+		(0.00000e+00 $x22 $x76)
+		(0.00000e+00 $x32 $x72)
+		(0.00000e+00 $x42 $x68)
+		(0.00000e+00 $x50 $x65)
+		(0.00000e+00 $x56 $x62)
+		(0.00000e+00 $x3 $x3)
+	)
+	
+	BSpline 3 4 (
+		(0.00000e+00 $x3 $x3)
+		(0.00000e+00 $x62 $x56)
+		(0.00000e+00 $x65 $x50)
+		(0.00000e+00 $x68 $x42)
+		(0.00000e+00 $x72 $x32)
+		(0.00000e+00 $x76 $x22)
+		(0.00000e+00 $x79 $x11)
+		//(0.00000e+00 $x1 0.00000e+00)
+	)
+	BSpline 8 10 (
+		//(1 0.00000e+00 $x1exp)
+		(1 $x11exp $x79exp)
+		(1 $x22exp $x76exp)
+		(1 $x32exp $x72exp)
+		(1 $x42exp $x68exp)
+		(1 $x50exp $x65exp)
+		(1 $x56exp $x62exp)
+		(1 $x3exp $x3exp)
+	)
+	
+	BSpline 10 11 (
+		(1 $x3exp $x3exp)
+		(1 $x62exp $x56exp)
+		(1 $x65exp $x50exp)
+		(1 $x68exp $x42exp)
+		(1 $x72exp $x32exp)
+		(1 $x76exp $x22exp)
+		(1 $x79exp $x11exp)
+		//(0.00000e+00 $x1 0.00000e+00)
+	)
+	
+	arc 2 6 (0 0.38268343236508978 0.92387953251128674)
+	arc 6 5 (0 0.92387953251128674 0.38268343236508978)
+	
+	arc 9 13 (1 $arc38 $arc92)
+	arc 13 12 (1 $arc92 $arc38)
+);
+
+boundary
+(
+    inlet
+    {
+        type patch;
+        faces
+        (
+            (1 2 6 3)
+            (3 6 5 4)
+            (0 1 3 4)
+        );
+    }
+    outlet
+    {
+        type patch;
+        faces
+        (
+            (11 10 8 7)
+            (12 13 10 11)
+            (13 9 8 10)
+        );
+    }
+    wall
+    {
+        type wall;
+        faces
+        (
+            (9 13 6 2)
+            (13 12 5 6)
+        );
+    }
+    symmetryVer
+    {
+        type symmetry;
+        faces
+        (
+            (2 9 8 1)
+            (1 8 7 0)
+        );
+    }
+    symmetryHor
+    {
+        type symmetry;
+        faces
+        (
+            (11 4 0 7)
+            (12 5 4 11)
+        );
+    }
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //
