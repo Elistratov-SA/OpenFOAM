@@ -1,0 +1,169 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2212                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     simpleFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         12000;
+
+deltaT          1;
+
+writeControl    adjustableRunTime;
+
+writeInterval   2000;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  15;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+adjustTimeStep  no;//yes;
+
+runTimeModifiable yes;
+
+maxCo           0.35;
+
+maxDeltaT       1;
+
+// functions
+// {
+// ...fieldAverage
+// }
+functions
+{
+  #include "graph";
+
+  probes
+{
+// Where to load it from
+functionObjectLibs ( "libsampling.so" );
+
+type        probes;
+
+// Name of the directory for probe data
+name        probes;
+
+writeControl    outputTime;
+writeInterval   1;
+// Fields to be probed
+fields (
+         
+        U
+       );
+interpolationScheme cellPointFace;
+probeLocations
+(
+
+// Nx=27; Ny=1; Nz=1
+(0.000000e+00   0.000000e+00    0.000000e+00)
+(2.600000e-02   0.000000e+00    0.000000e+00)
+(5.200000e-02   0.000000e+00    0.000000e+00)
+(7.800000e-02   0.000000e+00    0.000000e+00)
+(1.040000e-01   0.000000e+00    0.000000e+00)
+(1.300000e-01   0.000000e+00    0.000000e+00)
+(1.560000e-01   0.000000e+00    0.000000e+00)
+(1.820000e-01   0.000000e+00    0.000000e+00)
+(2.080000e-01   0.000000e+00    0.000000e+00)
+(2.340000e-01   0.000000e+00    0.000000e+00)
+(2.600000e-01   0.000000e+00    0.000000e+00)
+(2.860000e-01   0.000000e+00    0.000000e+00)
+(3.120000e-01   0.000000e+00    0.000000e+00)
+(3.640000e-01   0.000000e+00    0.000000e+00)
+(4.160000e-01   0.000000e+00    0.000000e+00)
+(4.680000e-01   0.000000e+00    0.000000e+00)
+(5.200000e-01   0.000000e+00    0.000000e+00)
+(5.720000e-01   0.000000e+00    0.000000e+00)
+(6.240000e-01   0.000000e+00    0.000000e+00)
+(6.760000e-01   0.000000e+00    0.000000e+00)
+(7.280000e-01   0.000000e+00    0.000000e+00)
+(7.800000e-01   0.000000e+00    0.000000e+00)
+(8.320000e-01   0.000000e+00    0.000000e+00)
+(8.840000e-01   0.000000e+00    0.000000e+00)
+(9.360000e-01   0.000000e+00    0.000000e+00)
+(9.880000e-01   0.000000e+00    0.000000e+00)
+(1.040000e+00   0.000000e+00    0.000000e+00)
+(1.300000e+00   0.000000e+00    0.000000e+00)
+(1.600000e+00   0.000000e+00    0.000000e+00)
+);
+}
+
+
+
+  fieldAverage
+  {
+    // Mandatory entries (unmodifiable)
+    //type            fieldAverage;
+    type                    fieldAverage;
+        libs      ("libfieldFunctionObjects.so");
+        enabled                 true;
+        cleanRestart            false;
+        outputControl           outputTime;
+        resetOnOutput           false;
+        resetOnRestart          false;
+        timeStart       2000;
+         timeEnd         20000;
+    //libs            (fieldFunctionObjects);
+    // Mandatory entries (runtime modifiable)
+    fields
+    (
+       U
+        {
+            mean        on;
+            prime2Mean  on;
+            base        time;
+         //   windowType   exact;
+         //   window       100;
+        //    windowName   <name>;
+         //   allowRestart true;
+        }
+        p
+        {
+            mean        on;
+            prime2Mean  off;
+            base        time;
+	 //   window      100;
+       }
+    );
+    // Optional entries (runtime modifiable)
+   /* restartOnRestart    false;
+    restartOnOutput     false;
+    periodicRestart     false;
+    restartPeriod       0.002;
+    // Optional (inherited) entries
+    region          region0;
+    enabled         true;
+    log             true;
+    timeStart       2000;
+    timeEnd         20000;
+    executeControl  timeStep;
+    executeInterval 1;
+    writeControl    timeStep;
+    writeInterval   1;*/
+  }
+}
+// ************************************************************************* //

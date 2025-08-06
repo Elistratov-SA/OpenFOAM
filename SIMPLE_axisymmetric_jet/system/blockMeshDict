@@ -1,0 +1,130 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v1912                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+scale   1;
+
+// user vars //
+
+H    2.6          ; // pipe length
+R    0.58         ; // pipe overall radius
+r    0.013        ; // inlet radius
+alpha 2*0.0174533 ; //pip sector angle (deg*[pi/180])
+
+
+
+NRinner  10;
+NRouter  #calc "0.6*round(0.7*$NRinner*($R/$r-1))";
+Nx       #calc "0.4*round(0.7*$NRinner*$H/$r)";
+
+
+// =======================================================================
+xr #calc "$r *cos($alpha /2)";
+xR #calc "$R *cos($alpha /2)";
+yr #calc "$r *sin($alpha/2)";
+yR #calc "$R *sin($alpha/2)";
+
+vertices
+(
+    ( 0    0   0    )  //0
+    ($H    0   0    )  //1
+    ( 0    $xr -$yr )  //2
+    ( $H   $xr -$yr )  //3
+    ( 0    $xR -$yR )  //4
+    ( $H   $xR -$yR  )  //5
+    ( 0    $xr  $yr )  //6
+    ( $H   $xr  $yr )  //7
+    ( 0    $xR  $yR )  //8
+    ( $H   $xR  $yR )  //9
+);
+
+blocks
+(
+    hex (0 1 3 2 0 1 7 6) ($Nx $NRinner  1) simpleGrading (4 1  1)
+    hex (2 3 5 4 6 7 9 8) ($Nx $NRouter  1)   simpleGrading (4 4 1)
+);
+
+edges
+(
+);
+
+boundary
+(
+    Inlet1
+    {
+        type patch;
+        faces
+        (
+            (0 2 6 0)
+        );
+    }
+
+    outlet
+    {
+        type patch;
+        faces
+        (
+            (1 3 7 1)
+            (3 5 9 7)
+        );
+    }
+
+//    freestreamInlet
+    Inlet2
+    {
+        type patch;
+        faces
+        (
+            (2 4 8 6)
+        );
+    }
+// freesteram
+    wall
+    {
+        type patch;
+        faces
+        (
+            (4 8 9 5)
+        );
+    }
+
+
+    wedge1
+    {
+        type wedge;
+        faces
+        (
+            (0 2 3 1)
+            (2 4 5 3)
+//           (0 10 11 1)
+        );
+    }
+
+    wedge2
+    {
+        type wedge;
+        faces
+        (
+            (0 1 7 6)
+            (6 7 9 8)
+        );
+    }
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //
