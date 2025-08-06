@@ -5,3 +5,5 @@ This repository contains OpenFOAM cases and their parts, as well as codes for Op
 Remeber the mesh is a quarter! If you need a full-circle pipe, don't forget to mirror it twice by youself.
 
 -- QHD_wave-attractor -- OpenFOAM case for wave attractor calculation using QHD solver
+
+-- OpenFOAM_data_python_loading.ipynb -- OpenFOAM case data loader to python (postprocessing or raw case data)
