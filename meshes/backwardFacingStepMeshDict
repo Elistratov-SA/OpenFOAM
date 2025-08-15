@@ -1,0 +1,252 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v1912                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+scale   1;
+
+// user vars //
+
+Hs       0.2; // step height
+H       #calc "6*$Hs";   // domain height
+L       #calc "10*$Hs";  // domain length (downstream)
+Ls      #calc "2*$Hs";   // step length
+w50     #calc "0.1*$Hs";   // spanwise, half-size
+
+y3 #calc "0.1*$Hs"; // shear layer thickness
+x36 #calc "$Ls/4";      // graded post-inlet area length
+
+
+Nsh 4; // cells per shear
+Nw 1; // spanwise cells
+
+shearGrading 8;         // >=1
+topGrading 8;           // >=1
+inletGrading 10;
+downstreamGrading 8;
+
+x50   #calc "0*$y3"; // shear layer horizontal expansion (mid-to-ceil), half
+y50   #calc "0*$y3"; // shear layer vertical expansion (corner to L), half
+
+
+//===================================================================
+
+
+
+
+
+y2 #calc "$y3+$Hs";
+y4 #calc "$Hs-$y50"; //
+y5 #calc "$y2+$y50"; //
+
+x2 #calc "$y3+$Ls";
+x3 #calc "$Ls-$x50"; //
+x4 #calc "$x2+0*$x50"; //
+
+
+
+
+
+
+delta0 #calc "2*$y3/($Nsh*(1+$shearGrading))"; // min shear layer cell thickness
+deltaE #calc "$delta0*$shearGrading";
+lowGrading #calc "$deltaE/$delta0";
+lowGrading_inv #calc "1/($lowGrading+0.0)";
+Nlow #calc "round(0.8*2*($Hs-$y3)/($delta0+$deltaE))";
+
+Ntop #calc "round(2*($H-$Hs-$y3)/($deltaE*(1+$topGrading)))";
+
+delta_i0  $delta0;
+Ni0  #calc "round(2*($x36)/($delta_i0*(1+$inletGrading)))";
+delta_iE #calc "$delta_i0*$inletGrading";
+postInletGrading #calc "$delta0/$delta_iE";
+Nii #calc "round(2*($Ls-$x36)/($delta0+$delta_iE))";
+
+vertices
+(
+    ($Ls       -$w50    0)   //0
+    ($x2        -$w50   0 )   //1
+    ($L         -$w50   0 )  //2
+    ($Ls       -$w50    $y3)   //3
+    ($x2        -$w50   $y3 )   //4
+    ($L         -$w50   $y3 )  //5
+    (0          -$w50  $Hs )  //6
+    ($Ls          -$w50  $Hs )  //7
+    ($x2          -$w50  $Hs  )  //8
+    ($L         -$w50  $y4  )  //9
+    (0         -$w50  $y2 )  //10
+    ($Ls          -$w50  $y2 )  //11
+    ( $x2        -$w50  $y2 )   //12
+    ($L        -$w50  $y5 )   //13
+    (0        -$w50  $H )     //14
+    ($x3         -$w50  $H )   //15
+    ($x4        -$w50  $H )   //16
+    ($L         -$w50  $H )     //17
+
+    ($Ls       $w50    0)   //18
+    ($x2        $w50   0 )   //19
+    ($L         $w50   0 )  //20
+    ($Ls       $w50    $y3)   //21
+    ($x2        $w50   $y3 )   //22
+    ($L         $w50   $y3 )  //23
+    (0          $w50  $Hs )  //24
+    ($Ls          $w50  $Hs )  //25
+    ($x2          $w50  $Hs  )  //26
+    ($L         $w50  $y4  )  //27
+    (0         $w50  $y2 )  //28
+    ($Ls          $w50  $y2 )  //29
+    ( $x2        $w50  $y2 )   //30
+    ($L        $w50  $y5 )   //31
+    (0        $w50  $H )     //32
+    ($x3         $w50  $H )   //33
+    ($x4        $w50  $H )   //34
+    ($L         $w50  $H )     //35
+
+    ($x36 -$w50 $Hs) // 36
+    ($x36 -$w50 $y2) // 37
+    ($x36 -$w50  $H) // 38
+    ($x36 $w50 $Hs) // 39
+    ($x36 $w50 $y2) // 40
+    ($x36 $w50  $H) // 41
+
+);
+
+blocks
+(
+    hex (0 1 19 18 3 4 22 21) ($Nsh $Nw $Nsh) simpleGrading ($shearGrading 1 $shearGrading) // down corner 0
+    hex (1 2 20 19 4 5 23 22) (50 $Nw $Nsh) simpleGrading ($downstreamGrading 1 $shearGrading) // lower bottom 1
+    hex (3 4 22 21 7 8 26 25) ($Nsh $Nw $Nlow ) simpleGrading ($shearGrading 1 $lowGrading_inv ) // vert wall 2
+    hex (4 5 23 22 8 9 27 26) (50 $Nw $Nlow) simpleGrading ($downstreamGrading 1 $lowGrading_inv ) // lower area 3
+
+    hex (7 8 26 25 11 12 30 29) ($Nsh $Nw $Nsh) simpleGrading ($shearGrading 1 $shearGrading) // mid corner 4
+    hex (6 36 39 24 10 37 40 28) ($Ni0 $Nw $Nsh) simpleGrading ($inletGrading 1 $shearGrading) // upper post-inlet shear area 5
+    hex (10 37 40 28 14 38 41 32) ($Ni0 $Nw $Ntop) simpleGrading ($inletGrading 1 $topGrading) // post-inlet area 6
+    hex (11 12 30 29 15 16 34 33) ($Nsh $Nw $Ntop) simpleGrading ($shearGrading 1 $topGrading) // vertical shear-layer expansion 7
+    hex (8 9 27 26 12 13 31 30) (50 $Nw $Nsh) simpleGrading ($downstreamGrading 1 $shearGrading) // horizontal shear-layer expansion 8
+    hex (12 13 31 30 16 17 35 34) (50 $Nw $Ntop) simpleGrading ($downstreamGrading 1 $topGrading) // upper area 9
+
+    hex (36 7 25 39 37 11 29 40) ($Nii $Nw $Nsh) simpleGrading ($postInletGrading 1 $topGrading) // upper post-post-inlet shear 10
+    hex (37 11 29 40 38 15 33 41) ($Nii $Nw $Ntop) simpleGrading ($postInletGrading 1 $topGrading) // upper post-post inlet area 11
+);
+
+edges
+(
+);
+
+boundary
+(
+    inlet
+    {
+        type patch;
+        faces
+        (
+            (10 6 24 28)
+            (14 10 28 32)
+        );
+    }
+
+    outlet
+    {
+        type patch;
+        faces
+        (
+            (17 13 35 31)
+            (9 13 31 27)
+            (5 9 27 23)
+            (2 5 23 20)
+        );
+    }
+
+
+    top
+    {
+        type patch;
+        faces
+        (
+            (38 14 32 41)
+            (15 38 41 33)
+            (16 15 33 34)
+            (17 16 34 35)
+        );
+    }
+
+    bottom
+    {
+        type patch;
+        faces
+        (
+            (0 1 19 18)
+            (1 2 20 19)
+        );
+    }
+
+    bottomOverStep
+    {
+        type patch;
+        faces
+        (
+            (6 36 39 24)
+            (36 7 25 39)
+        );
+    }
+
+    verticalStepWall
+    {
+        type patch;
+        faces
+        (
+            (3 0 18 21)
+            (7 3 21 25)
+        );
+    }//*/
+
+    sides
+    {
+        type empty;
+        faces
+        (
+            (32 28 40 41)
+            (41 40 29 33)
+            (33 29 30 34)
+            (34 30 31 35)
+            (28 24 39 40)
+            (40 39 25 29)
+            (29 25 26 30)
+            (30 26 27 31)
+            (25 21 22 26)
+            (26 22 23 27)
+            (21 18 19 22)
+            (22 19 20 23)
+
+            (14 38 37 10)
+            (38 15 11 37)
+            (15 16 12 11)
+            (16 17 13 12)
+            (10 37 36 6)
+            (37 11 7 36)
+            (11 12 8 7 )
+            (12 13 9 8 )
+            (7 8 4 3)
+            (8 9 5 4)
+            (3 4 1 0)
+            (4 5 2 1)
+        );
+    }//*/
+);//*/
+
+mergePatchPairs
+(
+);//*/
+
+// ************************************************************************* //
