@@ -22,6 +22,7 @@ ND      10;    // cell per diam
 D       0.025; // diam
 f50       #calc "1*$D";  // refinement half-width (no more than yc!)
 yc        #calc "4*$D";   // nozzle center height over floor
+refinementExpansion  1; // refinement area expatsion rate downstream
 
 gradingDownstream 10; // >1 to expand from the nozzle
 gradingFloor 3; // >1 to expand from nozzle to floor
@@ -49,6 +50,10 @@ NL       #calc "round(($L)/$delta0*2/(1+$gradingDownstream))";
 Nside    #calc "round(($w50-$f50)/$delta0*2/(1+$gradingOuter))";
 Nfloor    #calc "round(($yc-$f50)/$delta0*2/(1+$gradingFloor))";
 
+f50exp #calc "$f50*$refinementExpansion";
+y3exp  #calc "$yc+$f50exp";
+zbexp #calc "($zb-$f50)*($w50-$f50exp)/($w50-$f50)+$f50exp";
+
 vertices
 (
     ( 0        -$w50   $y2 )   //0
@@ -56,8 +61,8 @@ vertices
     (0          $f50  $y2 )  //2
     (0         -$w50  $H )   //3
     ($L        -$w50  $H )   //4
-    ($L         $f50  $y2 )  //5
-    ($L         $f50  $y3 )  //6
+    ($L         $f50exp  $y2 )  //5
+    ($L         $f50exp  $y3exp )  //6
     (0          $f50  $y3 )  //7
     (0          $w50  $y2  )  //8
     ($L         $w50  $y2  )  //9
@@ -65,16 +70,16 @@ vertices
     (0          $w50  $H )  //11
 
     ( 0        -$f50  $y2 )   //12
-    ($L        -$f50  $y2 )   //13
+    ($L        -$f50exp  $y2 )   //13
     ($L        $w50  0 )     //14
     (0         -$f50  $y3 )   //15
-    ($L        -$f50  $y3 )   //16
+    ($L        -$f50exp  $y3exp )   //16
     (0         -$w50  0 )     //17
     ($L        -$w50  0 )    //18
     (0         -$zb   0 )   //19
-    ($L        -$zb   0 )  //20
+    ($L        -$zbexp   0 )  //20
     (0          $zb   0 )   //21
-    ($L         $zb   0 )  //22
+    ($L         $zbexp   0 )  //22
     (0          $w50  0 )  //23
     ($L         $w50  0 )  //24
 );
