@@ -7,9 +7,11 @@ Remeber the mesh is a quarter! If you need a full-circle pipe, don't forget to m
 
 ---- wallJetMeshDict -- for jet-over-wall problem. 
 
+---- flowAroundCylinderMeshDict -- for outer-cylinder emerged into a recatngular domain
+
 -- SIMPLE_axysimmetric_jet -- OpenFOAM case for jet in wedge geometry
 
--- QHD_wave-attractor -- OpenFOAM case for wave attractor calculation using QHD solver
+-- QHD_wave-attractor -- OpenFOAM case for wave attractor calculation using mulesQHD solver
 
 -- OpenFOAM_data_python_loading.ipynb -- OpenFOAM case data loader to python (postprocessing or raw case data)
 
