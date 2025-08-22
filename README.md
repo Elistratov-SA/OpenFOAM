@@ -1,17 +1,17 @@
 This repository contains OpenFOAM cases and their parts, as well as codes for OpenFOAM cases processing.
 
--- meshes -- different blockMeshDicts:
+* meshes -- different blockMeshDicts:
 
----- frustumMeshDict -- for creating a quarter of a frustum or cylinder pipe mesh. The mesh is block-structured, with high-resolution block in center and outer radial mesh. The customization includes: linear scales (length, pipe radius), ovrall cell number in radial direction (taking grading into account), outer radial grading, axial grading, central near-H block size. The axial cell number is re-calculated automatically so that the central blocks near the coordinate zero contains near-cuboid cells.
+  * frustumMeshDict -- for creating a quarter of a frustum or cylinder pipe mesh. The mesh is block-structured, with high-resolution block in center and outer radial mesh. The customization includes: linear scales (length, pipe radius), ovrall cell number in radial direction (taking grading into account), outer radial grading, axial grading, central near-H block size. The axial cell number is re-calculated automatically so that the central blocks near the coordinate zero contains near-cuboid cells.
 Remeber the mesh is a quarter! If you need a full-circle pipe, don't forget to mirror it twice by youself.
 
----- wallJetMeshDict -- for jet-over-wall problem. 
+  * wallJetMeshDict -- for jet-over-wall problem. 
 
----- flowAroundCylinderMeshDict -- for outer-cylinder emerged into a recatngular domain
+  * flowAroundCylinderMeshDict -- for outer-cylinder emerged into a recatngular domain
 
--- SIMPLE_axysimmetric_jet -- OpenFOAM case for jet in wedge geometry
+* SIMPLE_axysimmetric_jet -- OpenFOAM case for jet in wedge geometry
 
--- QHD_wave-attractor -- OpenFOAM case for wave attractor calculation using mulesQHD solver
+* QHD_wave-attractor -- OpenFOAM case for wave attractor calculation using mulesQHD solver
 
--- OpenFOAM_data_python_loading.ipynb -- OpenFOAM case data loader to python (postprocessing or raw case data)
+* OpenFOAM_data_python_loading.ipynb -- OpenFOAM case data loader to python (postprocessing or raw case data)
 
