@@ -24,15 +24,15 @@ L       #calc "10*$Hs";  // domain length (downstream)
 Ls      #calc "2*$Hs";   // step length
 w50     #calc "0.1*$Hs";   // spanwise, half-size
 
-y3 #calc "0.1*$Hs"; // shear layer thickness
+y3 #calc "0.2*$Hs"; // shear layer thickness
 x36 #calc "$Ls/4";      // graded post-inlet area length
 
 
 Nsh 4; // cells per shear
 Nw 1; // spanwise cells
 
-shearGrading 8;         // >=1
-topGrading 8;           // >=1
+shearGrading 5;         // >=1
+topGrading 5;           // >=1
 inletGrading 10;
 downstreamGrading 8;
 
@@ -136,14 +136,14 @@ blocks
     hex (8 9 27 26 12 13 31 30) (50 $Nw $Nsh) simpleGrading ($downstreamGrading 1 $shearGrading) // horizontal shear-layer expansion 8
     hex (12 13 31 30 16 17 35 34) (50 $Nw $Ntop) simpleGrading ($downstreamGrading 1 $topGrading) // upper area 9
 
-    hex (36 7 25 39 37 11 29 40) ($Nii $Nw $Nsh) simpleGrading ($postInletGrading 1 $topGrading) // upper post-post-inlet shear 10
+    hex (36 7 25 39 37 11 29 40) ($Nii $Nw $Nsh) simpleGrading ($postInletGrading 1 $shearGrading) // upper post-post-inlet shear 10
     hex (37 11 29 40 38 15 33 41) ($Nii $Nw $Ntop) simpleGrading ($postInletGrading 1 $topGrading) // upper post-post inlet area 11
 );
 
 edges
 (
 );
-
+/*
 boundary
 (
     inlet
@@ -209,7 +209,7 @@ boundary
             (3 0 18 21)
             (7 3 21 25)
         );
-    }//*/
+    }
 
     sides
     {
@@ -242,7 +242,7 @@ boundary
             (3 4 1 0)
             (4 5 2 1)
         );
-    }//*/
+    }
 );//*/
 
 mergePatchPairs
