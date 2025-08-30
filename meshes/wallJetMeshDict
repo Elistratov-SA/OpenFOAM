@@ -21,7 +21,7 @@ scale   1;
 ND      10;               // cell per diam
 D       0.025;            // diam
 f50       #calc "1*$D";   // refinement half-width (no more than yc!)
-yc        #calc "4*$D";   // nozzle center height over floor
+zc        #calc "4*$D";   // nozzle center height over floor
 domainExpansion  2;      // whole domain downstream expansion
 refinementExpansion  #calc "$domainExpansion" ; // refinement area expatsion to outflow
 
@@ -33,11 +33,12 @@ H       #calc "20*$D";   // domain height (floor to ceil)
 L       #calc "60*$D";   // domain length (downstream)
 w50       #calc "10*$D";  // spanwise, half-size
 
-zb #calc "1.8*$f50"; //floor legs from center; >0, preferably >=f50
+yb #calc "1.8*$f50"; //floor legs from center; >0, preferably >=f50
 
 //===================================================================
 
-
+zb $yb;
+yc $zc;
 
 gradingFloor_inv #calc "1/($gradingFloor+0.0)";
 gradingOuter_inv #calc "1/($gradingOuter+0.0)";
