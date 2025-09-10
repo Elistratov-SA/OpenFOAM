@@ -19,8 +19,8 @@ C 1; // chord length
 
 scale   $C;
 
-// user vars //
-
+//                   user vars                        //
+//=== ALL LINEAR VARS BELOW ARE IN CHORD UNITS!!!! ===//
 
 // NACA params
 p 0.4; // do  not set 0.0 even for 00xx symmetrical profiles!
@@ -29,15 +29,18 @@ tt 0.24; // thickness; 0.01-0.99
 
 AOA 20; // angle of attack, deg (if integer, provide with .0)
 
-Nw     1;
+xO  -0.3; // center of attack rotation
+yO  0;
+
+
 xmin   -2;
 xmax   3;
 ymin   $xmin;
 ymax   -$xmin;
 w50    0.1; // spanwise half-breadth
-ytt    ${{$tt/2}};
 
-Nchord 20;
+Nchord 20; // cells per chord
+Nw     1;
 
 grading  10; // shear-layer grading (depends on xmin)
 tailGrading 5; // wake grading 
@@ -45,11 +48,9 @@ tailGrading 5; // wake grading
 //==================================================//
 
 pi    3.1415926535;
-x_lean  0.3;//-0.3;
+x_lean  -0.3;
 x_trail ${{1+$x_lean}};
 
-xO  0.1; // center of attack rotation
-yO  0;
 
 grading_inv  ${{1/$grading}};
 
