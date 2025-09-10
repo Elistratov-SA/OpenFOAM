@@ -1,6 +1,8 @@
 This repository contains OpenFOAM cases and their parts, as well as codes for OpenFOAM cases processing.
 
 * __meshes__ &mdash; different blockMeshDicts:
+  * _airfoilMeshDict_ &mdash; for NACA 4-digit airfoil flow
+    
   * _backwardFacingStepMeshDict_ &mdash; for Pitz-Daily problem 
   
   * _flowAroundCylinderMeshDict_ &mdash; for outer-cylinder emerged into a recatngular domain
