@@ -1,0 +1,604 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v1912                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+C 1; // chord length 
+
+scale   $C;
+
+//                   user vars                        //
+//=== ALL LINEAR VARS BELOW ARE IN CHORD UNITS!!!! ===//
+
+// NACA params
+p 0.4; // do  not set 0.0 even for 00xx symmetrical profiles!
+m 0.09; // range 0.01-0.09; camberline curviness
+tt 0.24; // thickness; 0.01-0.99
+
+AOA 0; // angle of attack, deg (if integer, provide with .0)
+
+xO  -0.3; // center of attack rotation
+yO  0;
+
+
+xmin   -2;
+xmax   3;
+ymin   $xmin;
+ymax   -$xmin;
+
+w50    0.1; // spanwise half-breadth
+
+Nchord 20; // cells per chord
+Nw     1;
+
+grading  10; // shear-layer grading (depends on xmin)
+tailGrading 5; // wake grading 
+
+//==================================================//
+
+pi    3.1415926535;
+x_lean  -0.3;
+x_trail ${{1+$x_lean}};
+
+
+grading_inv  ${{1/$grading}};
+
+
+
+Ny   ${{1*$Nchord}};
+Ntail ${{round($Nchord*2*($xmax-0.7)/(1+$tailGrading))}};
+
+//================== points on airfoil =====================//
+
+
+sigmaScale 0.0001;
+
+//===============>   trailing points
+
+xi #calc "$x_lean+0.005"; //  -0.295;
+yi 	#calc "5*$tt*(0.2969*sqrt($xi-($x_lean)+0.0)-0.1260*($xi-($x_lean))-0.3516*pow($xi-($x_lean),2)+0.2843*pow($xi-($x_lean),3)-0.1015*pow($xi-($x_lean),4))";
+denom 	#calc "pow((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5   ,2)";
+yC 	#calc "$m/$denom*((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5-$p + 2*$p*($xi-($x_lean))-pow($xi-($x_lean),2))";
+yC_	#calc "2.0*$m/$denom*($p-($xi-($x_lean)))";
+xi_ #calc "$xi - $yi*$yC_/sqrt(1.0+pow($yC_+0.0,2))";
+yi_ #calc "$yC + $yi/sqrt(1+pow($yC_+0.0,2))";
+x00i #calc "$xO + ($xi_-($xO))*cos($AOA/180.0*$pi+0.0) + ($yi_-($yO))*sin($AOA/180.0*$pi+0.0)";
+y00i #calc "$yO - ($xi_-($xO))*sin($AOA/180.0*$pi+0.0) + ($yi_-($yO))*cos($AOA/180.0*$pi+0.0)";
+
+
+xi      #calc "$x_lean+0.01"; // -0.29;
+yi 	#calc "5*$tt*(0.2969*sqrt($xi+0.0-($x_lean))-0.1260*($xi-($x_lean))-0.3516*pow($xi-($x_lean),2)+0.2843*pow($xi-($x_lean),3)-0.1015*pow($xi-($x_lean),4))";
+denom 	#calc "pow((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5   ,2)";
+yC 	#calc "$m/$denom*((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5-$p + 2*$p*($xi-($x_lean))-pow($xi-($x_lean),2))";
+yC_	#calc "2.0*$m/$denom*($p-($xi-($x_lean)))";
+xi_ #calc "$xi - $yi*$yC_/sqrt(1.0+pow($yC_+0.0,2))";
+yi_ #calc "$yC + $yi/sqrt(1.0+pow($yC_+0.0,2))";
+x0i #calc "$xO + ($xi_-($xO))*cos($AOA/180.0*$pi+0.0) + ($yi_-($yO))*sin($AOA/180.0*$pi+0.0)";
+y0i #calc "$yO - ($xi_-($xO))*sin($AOA/180.0*$pi+0.0) + ($yi_-($yO))*cos($AOA/180.0*$pi+0.0)";
+
+xi      #calc "$x_lean+0.02"; // -0.28;
+yi 	#calc "5*$tt*(0.2969*sqrt($xi+0.0-($x_lean))-0.1260*($xi-($x_lean))-0.3516*pow($xi-($x_lean),2)+0.2843*pow($xi-($x_lean),3)-0.1015*pow($xi-($x_lean),4))";
+denom 	#calc "pow((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5   ,2)";
+yC 	#calc "$m/$denom*((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5-$p + 2*$p*($xi-($x_lean))-pow($xi-($x_lean),2))";
+yC_	#calc "2.0*$m/$denom*($p-($xi-($x_lean)))";
+xi_ #calc "$xi - $yi*$yC_/sqrt(1+pow($yC_+0.0,2))";
+yi_ #calc "$yC + $yi/sqrt(1+pow($yC_+0.0,2))";
+x1i #calc "$xO + ($xi_-($xO))*cos($AOA/180.0*$pi+0.0) + ($yi_-($yO))*sin($AOA/180.0*$pi+0.0)";
+y1i #calc "$yO - ($xi_-($xO))*sin($AOA/180.0*$pi+0.0) + ($yi_-($yO))*cos($AOA/180.0*$pi+0.0)";
+
+xi      #calc "$x_lean+0.05"; //  -0.25;
+yi 	#calc "5*$tt*(0.2969*sqrt($xi+0.0-($x_lean))-0.1260*($xi-($x_lean))-0.3516*pow($xi-($x_lean),2)+0.2843*pow($xi-($x_lean),3)-0.1015*pow($xi-($x_lean),4))";
+denom 	#calc "pow((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5   ,2)";
+yC 	#calc "$m/$denom*((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5-$p + 2*$p*($xi-($x_lean))-pow($xi-($x_lean),2))";
+yC_	#calc "2.0*$m/$denom*($p-($xi-($x_lean)))";
+xi_ #calc "$xi - $yi*$yC_/sqrt(1+pow($yC_+0.0,2))";
+yi_ #calc "$yC + $yi/sqrt(1+pow($yC_+0.0,2))";
+x2i #calc "$xO + ($xi_-($xO))*cos($AOA/180.0*$pi+0.0) + ($yi_-($yO))*sin($AOA/180.0*$pi+0.0)";
+y2i #calc "$yO - ($xi_-($xO))*sin($AOA/180.0*$pi+0.0) + ($yi_-($yO))*cos($AOA/180.0*$pi+0.0)";
+
+xi      #calc "$x_lean+0.1"; // -0.2;
+yi 	#calc "5*$tt*(0.2969*sqrt($xi+0.0-($x_lean))-0.1260*($xi-($x_lean))-0.3516*pow($xi-($x_lean),2)+0.2843*pow($xi-($x_lean),3)-0.1015*pow($xi-($x_lean),4))";
+denom 	#calc "pow((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5   ,2)";
+yC 	#calc "$m/$denom*((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5-$p + 2*$p*($xi-($x_lean))-pow($xi-($x_lean),2))";
+yC_	#calc "2.0*$m/$denom*($p-($xi-($x_lean)))";
+xi_ #calc "$xi - $yi*$yC_/sqrt(1+pow($yC_+0.0,2))";
+yi_ #calc "$yC + $yi/sqrt(1+pow($yC_+0.0,2))";
+x3i #calc "$xO + ($xi_-($xO))*cos($AOA/180.0*$pi+0.0) + ($yi_-($yO))*sin($AOA/180.0*$pi+0.0)";
+y3i #calc "$yO - ($xi_-($xO))*sin($AOA/180.0*$pi+0.0) + ($yi_-($yO))*cos($AOA/180.0*$pi+0.0)";
+
+xi      #calc "$x_lean+0.2"; // -0.1;
+yi 	#calc "5*$tt*(0.2969*sqrt($xi+0.0-($x_lean))-0.1260*($xi-($x_lean))-0.3516*pow($xi-($x_lean),2)+0.2843*pow($xi-($x_lean),3)-0.1015*pow($xi-($x_lean),4))";
+denom 	#calc "pow((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5   ,2)";
+yC 	#calc "$m/$denom*((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5-$p + 2*$p*($xi-($x_lean))-pow($xi-($x_lean),2))";
+yC_	#calc "2.0*$m/$denom*($p-($xi-($x_lean)))";
+xi_ #calc "$xi - $yi*$yC_/sqrt(1+pow($yC_+0.0,2))";
+yi_ #calc "$yC + $yi/sqrt(1+pow($yC_+0.0,2))";
+x4i #calc "$xO + ($xi_-($xO))*cos($AOA/180.0*$pi+0.0) + ($yi_-($yO))*sin($AOA/180.0*$pi+0.0)";
+y4i #calc "$yO - ($xi_-($xO))*sin($AOA/180.0*$pi+0.0) + ($yi_-($yO))*cos($AOA/180.0*$pi+0.0)";
+
+xi      #calc "$x_lean+0.25"; // -0.05;
+yi 	#calc "5*$tt*(0.2969*sqrt($xi+0.0-($x_lean))-0.1260*($xi-($x_lean))-0.3516*pow($xi-($x_lean),2)+0.2843*pow($xi-($x_lean),3)-0.1015*pow($xi-($x_lean),4))";
+denom 	#calc "pow((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5   ,2)";
+yC 	#calc "$m/$denom*((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5-$p + 2*$p*($xi-($x_lean))-pow($xi-($x_lean),2))";
+yC_	#calc "2.0*$m/$denom*($p-($xi-($x_lean)))";
+xi_ #calc "$xi - $yi*$yC_/sqrt(1+pow($yC_+0.0,2))";
+yi_ #calc "$yC + $yi/sqrt(1+pow($yC_+0.0,2))";
+x5i #calc "$xO + ($xi_-($xO))*cos($AOA/180.0*$pi+0.0) + ($yi_-($yO))*sin($AOA/180.0*$pi+0.0)";
+y5i #calc "$yO - ($xi_-($xO))*sin($AOA/180.0*$pi+0.0) + ($yi_-($yO))*cos($AOA/180.0*$pi+0.0)";
+
+//==========================
+
+xi #calc "$x_lean+0.005"; //  -0.295;
+yi 	#calc "-5*$tt*(0.2969*sqrt($xi-($x_lean)+0.0)-0.1260*($xi-($x_lean))-0.3516*pow($xi-($x_lean),2)+0.2843*pow($xi-($x_lean),3)-0.1015*pow($xi-($x_lean),4))";
+denom 	#calc "pow((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5   ,2)";
+yC 	#calc "$m/$denom*((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5-$p + 2*$p*($xi-($x_lean))-pow($xi-($x_lean),2))";
+yC_	#calc "2.0*$m/$denom*($p-($xi-($x_lean)))";
+xi_ #calc "$xi - $yi*$yC_/sqrt(1.0+pow($yC_+0.0,2))";
+yi_ #calc "$yC + $yi/sqrt(1+pow($yC_+0.0,2))";
+x500i #calc "$xO + ($xi_-($xO))*cos($AOA/180.0*$pi+0.0) + ($yi_-($yO))*sin($AOA/180.0*$pi+0.0)";
+y500i #calc "$yO - ($xi_-($xO))*sin($AOA/180.0*$pi+0.0) + ($yi_-($yO))*cos($AOA/180.0*$pi+0.0)";
+
+
+xi      #calc "$x_lean+0.01"; // -0.29;
+yi 	#calc "-5*$tt*(0.2969*sqrt($xi+0.0-($x_lean))-0.1260*($xi-($x_lean))-0.3516*pow($xi-($x_lean),2)+0.2843*pow($xi-($x_lean),3)-0.1015*pow($xi-($x_lean),4))";
+denom 	#calc "pow((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5   ,2)";
+yC 	#calc "$m/$denom*((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5-$p + 2*$p*($xi-($x_lean))-pow($xi-($x_lean),2))";
+yC_	#calc "2.0*$m/$denom*($p-($xi-($x_lean)))";
+xi_ #calc "$xi - $yi*$yC_/sqrt(1+pow($yC_+0.0,2))";
+yi_ #calc "$yC + $yi/sqrt(1+pow($yC_+0.0,2))";
+x50i #calc "$xO + ($xi_-($xO))*cos($AOA/180.0*$pi+0.0) + ($yi_-($yO))*sin($AOA/180.0*$pi+0.0)";
+y50i #calc "$yO - ($xi_-($xO))*sin($AOA/180.0*$pi+0.0) + ($yi_-($yO))*cos($AOA/180.0*$pi+0.0)";
+
+xi      #calc "$x_lean+0.02"; // -0.28;
+yi 	#calc "-5*$tt*(0.2969*sqrt($xi+0.0-($x_lean))-0.1260*($xi-($x_lean))-0.3516*pow($xi-($x_lean),2)+0.2843*pow($xi-($x_lean),3)-0.1015*pow($xi-($x_lean),4))";
+denom 	#calc "pow((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5   ,2)";
+yC 	#calc "$m/$denom*((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5-$p + 2*$p*($xi-($x_lean))-pow($xi-($x_lean),2))";
+yC_	#calc "2.0*$m/$denom*($p-($xi-($x_lean)))";
+xi_ #calc "$xi - $yi*$yC_/sqrt(1+pow($yC_+0.0,2))";
+yi_ #calc "$yC + $yi/sqrt(1+pow($yC_+0.0,2))";
+x51i #calc "$xO + ($xi_-($xO))*cos($AOA/180.0*$pi+0.0) + ($yi_-($yO))*sin($AOA/180.0*$pi+0.0)";
+y51i #calc "$yO - ($xi_-($xO))*sin($AOA/180.0*$pi+0.0) + ($yi_-($yO))*cos($AOA/180.0*$pi+0.0)";
+
+xi      #calc "$x_lean+0.05"; //  -0.25;
+yi 	#calc "-5*$tt*(0.2969*sqrt($xi+0.0-($x_lean))-0.1260*($xi-($x_lean))-0.3516*pow($xi-($x_lean),2)+0.2843*pow($xi-($x_lean),3)-0.1015*pow($xi-($x_lean),4))";
+denom 	#calc "pow((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5   ,2)";
+yC 	#calc "$m/$denom*((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5-$p + 2*$p*($xi-($x_lean))-pow($xi-($x_lean),2))";
+yC_	#calc "2.0*$m/$denom*($p-($xi-($x_lean)))";
+xi_ #calc "$xi - $yi*$yC_/sqrt(1+pow($yC_+0.0,2))";
+yi_ #calc "$yC + $yi/sqrt(1+pow($yC_+0.0,2))";
+x52i #calc "$xO + ($xi_-($xO))*cos($AOA/180.0*$pi+0.0) + ($yi_-($yO))*sin($AOA/180.0*$pi+0.0)";
+y52i #calc "$yO - ($xi_-($xO))*sin($AOA/180.0*$pi+0.0) + ($yi_-($yO))*cos($AOA/180.0*$pi+0.0)";
+
+xi      #calc "$x_lean+0.1"; // -0.2;
+yi 	#calc "-5*$tt*(0.2969*sqrt($xi+0.0-($x_lean))-0.1260*($xi-($x_lean))-0.3516*pow($xi-($x_lean),2)+0.2843*pow($xi-($x_lean),3)-0.1015*pow($xi-($x_lean),4))";
+denom 	#calc "pow((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5   ,2)";
+yC 	#calc "$m/$denom*((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5-$p + 2*$p*($xi-($x_lean))-pow($xi-($x_lean),2))";
+yC_	#calc "2.0*$m/$denom*($p-($xi-($x_lean)))";
+xi_ #calc "$xi - $yi*$yC_/sqrt(1+pow($yC_+0.0,2))";
+yi_ #calc "$yC + $yi/sqrt(1+pow($yC_+0.0,2))";
+x53i #calc "$xO + ($xi_-($xO))*cos($AOA/180.0*$pi+0.0) + ($yi_-($yO))*sin($AOA/180.0*$pi+0.0)";
+y53i #calc "$yO - ($xi_-($xO))*sin($AOA/180.0*$pi+0.0) + ($yi_-($yO))*cos($AOA/180.0*$pi+0.0)";
+
+xi      #calc "$x_lean+0.2"; // -0.1;
+yi 	#calc "-5*$tt*(0.2969*sqrt($xi+0.0-($x_lean))-0.1260*($xi-($x_lean))-0.3516*pow($xi-($x_lean),2)+0.2843*pow($xi-($x_lean),3)-0.1015*pow($xi-($x_lean),4))";
+denom 	#calc "pow((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5   ,2)";
+yC 	#calc "$m/$denom*((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5-$p + 2*$p*($xi-($x_lean))-pow($xi-($x_lean),2))";
+yC_	#calc "2.0*$m/$denom*($p-($xi-($x_lean)))";
+xi_ #calc "$xi - $yi*$yC_/sqrt(1+pow($yC_+0.0,2))";
+yi_ #calc "$yC + $yi/sqrt(1+pow($yC_+0.0,2))";
+x54i #calc "$xO + ($xi_-($xO))*cos($AOA/180.0*$pi+0.0) + ($yi_-($yO))*sin($AOA/180.0*$pi+0.0)";
+y54i #calc "$yO - ($xi_-($xO))*sin($AOA/180.0*$pi+0.0) + ($yi_-($yO))*cos($AOA/180.0*$pi+0.0)";
+
+xi      #calc "$x_lean+0.25"; // -0.05;
+yi 	#calc "-5*$tt*(0.2969*sqrt($xi+0.0-($x_lean))-0.1260*($xi-($x_lean))-0.3516*pow($xi-($x_lean),2)+0.2843*pow($xi-($x_lean),3)-0.1015*pow($xi-($x_lean),4))";
+denom 	#calc "pow((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5   ,2)";
+yC 	#calc "$m/$denom*((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5-$p + 2*$p*($xi-($x_lean))-pow($xi-($x_lean),2))";
+yC_	#calc "2.0*$m/$denom*($p-($xi-($x_lean)))";
+xi_ #calc "$xi - $yi*$yC_/sqrt(1+pow($yC_+0.0,2))";
+yi_ #calc "$yC + $yi/sqrt(1+pow($yC_+0.0,2))";
+x55i #calc "$xO + ($xi_-($xO))*cos($AOA/180.0*$pi+0.0) + ($yi_-($yO))*sin($AOA/180.0*$pi+0.0)";
+y55i #calc "$yO - ($xi_-($xO))*sin($AOA/180.0*$pi+0.0) + ($yi_-($yO))*cos($AOA/180.0*$pi+0.0)";
+
+
+//==============>  lean points
+
+xi #calc "$x_lean+0.35"; //
+yi 	#calc "5*$tt*(0.2969*sqrt($xi+0.0-($x_lean))-0.1260*($xi-($x_lean))-0.3516*pow($xi-($x_lean),2)+0.2843*pow($xi-($x_lean),3)-0.1015*pow($xi-($x_lean),4))";
+denom 	#calc "pow((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/0.001))+0.5   ,2)";
+yC 	#calc "$m/$denom*((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5-$p + 2*$p*($xi-($x_lean))-pow($xi-($x_lean),2))";
+yC_	#calc "2.0*$m/$denom*($p-($xi-($x_lean)))";
+xi_ #calc "$xi - $yi*$yC_/sqrt(1+pow($yC_+0.0,2))";
+yi_ #calc "$yC + $yi/sqrt(1+pow($yC_+0.0,2))";
+x100i #calc "$xO + ($xi_-($xO))*cos($AOA/180.0*$pi+0.0) + ($yi_-($yO))*sin($AOA/180.0*$pi+0.0)";
+y100i #calc "$yO - ($xi_-($xO))*sin($AOA/180.0*$pi+0.0) + ($yi_-($yO))*cos($AOA/180.0*$pi+0.0)";
+
+xi #calc "$x_lean+0.4"; //
+yi 	#calc "5*$tt*(0.2969*sqrt($xi+0.0-($x_lean))-0.1260*($xi-($x_lean))-0.3516*pow($xi-($x_lean),2)+0.2843*pow($xi-($x_lean),3)-0.1015*pow($xi-($x_lean),4))";
+denom 	#calc "pow((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5   ,2)";
+yC 	#calc "$m/$denom*((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5-$p + 2*$p*($xi-($x_lean))-pow($xi-($x_lean),2))";
+yC_	#calc "2.0*$m/$denom*($p-($xi-($x_lean)))";
+xi_ #calc "$xi - $yi*$yC_/sqrt(1+pow($yC_+0.0,2))";
+yi_ #calc "$yC + $yi/sqrt(1+pow($yC_+0.0,2))";
+x101i #calc "$xO + ($xi_-($xO))*cos($AOA/180.0*$pi+0.0) + ($yi_-($yO))*sin($AOA/180.0*$pi+0.0)";
+y101i #calc "$yO - ($xi_-($xO))*sin($AOA/180.0*$pi+0.0) + ($yi_-($yO))*cos($AOA/180.0*$pi+0.0)";
+
+
+xi #calc "$x_lean+0.5"; //
+yi 	#calc "5*$tt*(0.2969*sqrt($xi+0.0-($x_lean))-0.1260*($xi-($x_lean))-0.3516*pow($xi-($x_lean),2)+0.2843*pow($xi-($x_lean),3)-0.1015*pow($xi-($x_lean),4))";
+denom 	#calc "pow((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5   ,2)";
+yC 	#calc "$m/$denom*((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5-$p + 2*$p*($xi-($x_lean))-pow($xi-($x_lean),2))";
+yC_	#calc "2.0*$m/$denom*($p-($xi-($x_lean)))";
+xi_ #calc "$xi - $yi*$yC_/sqrt(1+pow($yC_+0.0,2))";
+yi_ #calc "$yC + $yi/sqrt(1+pow($yC_+0.0,2))";
+x102i #calc "$xO + ($xi_-($xO))*cos($AOA/180.0*$pi+0.0) + ($yi_-($yO))*sin($AOA/180.0*$pi+0.0)";
+y102i #calc "$yO - ($xi_-($xO))*sin($AOA/180.0*$pi+0.0) + ($yi_-($yO))*cos($AOA/180.0*$pi+0.0)";
+
+xi #calc "$x_lean+0.6"; //
+yi 	#calc "5*$tt*(0.2969*sqrt($xi+0.0-($x_lean))-0.1260*($xi-($x_lean))-0.3516*pow($xi-($x_lean),2)+0.2843*pow($xi-($x_lean),3)-0.1015*pow($xi-($x_lean),4))";
+denom 	#calc "pow((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5   ,2)";
+yC 	#calc "$m/$denom*((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5-$p + 2*$p*($xi-($x_lean))-pow($xi-($x_lean),2))";
+yC_	#calc "2.0*$m/$denom*($p-($xi-($x_lean)))";
+xi_ #calc "$xi - $yi*$yC_/sqrt(1+pow($yC_+0.0,2))";
+yi_ #calc "$yC + $yi/sqrt(1+pow($yC_+0.0,2))";
+x103i #calc "$xO + ($xi_-($xO))*cos($AOA/180.0*$pi+0.0) + ($yi_-($yO))*sin($AOA/180.0*$pi+0.0)";
+y103i #calc "$yO - ($xi_-($xO))*sin($AOA/180.0*$pi+0.0) + ($yi_-($yO))*cos($AOA/180.0*$pi+0.0)";
+
+xi #calc "$x_lean+0.68"; //
+yi 	#calc "5*$tt*(0.2969*sqrt($xi+0.0-($x_lean))-0.1260*($xi-($x_lean))-0.3516*pow($xi-($x_lean),2)+0.2843*pow($xi-($x_lean),3)-0.1015*pow($xi-($x_lean),4))";
+denom 	#calc "pow((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5   ,2)";
+yC 	#calc "$m/$denom*((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5-$p + 2*$p*($xi-($x_lean))-pow($xi-($x_lean),2))";
+yC_	#calc "2.0*$m/$denom*($p-($xi-($x_lean)))";
+xi_ #calc "$xi - $yi*$yC_/sqrt(1+pow($yC_+0.0,2))";
+yi_ #calc "$yC + $yi/sqrt(1+pow($yC_+0.0,2))";
+x104i #calc "$xO + ($xi_-($xO))*cos($AOA/180.0*$pi+0.0) + ($yi_-($yO))*sin($AOA/180.0*$pi+0.0)";
+y104i #calc "$yO - ($xi_-($xO))*sin($AOA/180.0*$pi+0.0) + ($yi_-($yO))*cos($AOA/180.0*$pi+0.0)";
+
+xi #calc "$x_lean+0.69"; //
+yi 	#calc "5*$tt*(0.2969*sqrt($xi+0.0-($x_lean))-0.1260*($xi-($x_lean))-0.3516*pow($xi-($x_lean),2)+0.2843*pow($xi-($x_lean),3)-0.1015*pow($xi-($x_lean),4))";
+denom 	#calc "pow((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5   ,2)";
+yC 	#calc "$m/$denom*((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5-$p + 2*$p*($xi-($x_lean))-pow($xi-($x_lean),2))";
+yC_	#calc "2.0*$m/$denom*($p-($xi-($x_lean)))";
+xi_ #calc "$xi - $yi*$yC_/sqrt(1+pow($yC_+0.0,2))";
+yi_ #calc "$yC + $yi/sqrt(1+pow($yC_+0.0,2))";
+x105i #calc "$xO + ($xi_-($xO))*cos($AOA/180.0*$pi+0.0) + ($yi_-($yO))*sin($AOA/180.0*$pi+0.0)";
+y105i #calc "$yO - ($xi_-($xO))*sin($AOA/180.0*$pi+0.0) + ($yi_-($yO))*cos($AOA/180.0*$pi+0.0)";
+
+//==========
+
+xi #calc "$x_lean+0.35"; //
+yi 	#calc "-5*$tt*(0.2969*sqrt($xi+0.0-($x_lean))-0.1260*($xi-($x_lean))-0.3516*pow($xi-($x_lean),2)+0.2843*pow($xi-($x_lean),3)-0.1015*pow($xi-($x_lean),4))";
+denom 	#calc "pow((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/0.001))+0.5   ,2)";
+yC 	#calc "$m/$denom*((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5-$p + 2*$p*($xi-($x_lean))-pow($xi-($x_lean),2))";
+yC_	#calc "2.0*$m/$denom*($p-($xi-($x_lean)))";
+xi_ #calc "$xi - $yi*$yC_/sqrt(1+pow($yC_+0.0,2))";
+yi_ #calc "$yC + $yi/sqrt(1+pow($yC_+0.0,2))";
+x150i #calc "$xO + ($xi_-($xO))*cos($AOA/180.0*$pi+0.0) + ($yi_-($yO))*sin($AOA/180.0*$pi+0.0)";
+y150i #calc "$yO - ($xi_-($xO))*sin($AOA/180.0*$pi+0.0) + ($yi_-($yO))*cos($AOA/180.0*$pi+0.0)";
+
+xi #calc "$x_lean+0.4"; //
+yi 	#calc "-5*$tt*(0.2969*sqrt($xi+0.0-($x_lean))-0.1260*($xi-($x_lean))-0.3516*pow($xi-($x_lean),2)+0.2843*pow($xi-($x_lean),3)-0.1015*pow($xi-($x_lean),4))";
+denom 	#calc "pow((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5   ,2)";
+yC 	#calc "$m/$denom*((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5-$p + 2*$p*($xi-($x_lean))-pow($xi-($x_lean),2))";
+yC_	#calc "2.0*$m/$denom*($p-($xi-($x_lean)))";
+xi_ #calc "$xi - $yi*$yC_/sqrt(1+pow($yC_+0.0,2))";
+yi_ #calc "$yC + $yi/sqrt(1+pow($yC_+0.0,2))";
+x151i #calc "$xO + ($xi_-($xO))*cos($AOA/180.0*$pi+0.0) + ($yi_-($yO))*sin($AOA/180.0*$pi+0.0)";
+y151i #calc "$yO - ($xi_-($xO))*sin($AOA/180.0*$pi+0.0) + ($yi_-($yO))*cos($AOA/180.0*$pi+0.0)";
+
+
+xi #calc "$x_lean+0.5"; //
+yi 	#calc "-5*$tt*(0.2969*sqrt($xi+0.0-($x_lean))-0.1260*($xi-($x_lean))-0.3516*pow($xi-($x_lean),2)+0.2843*pow($xi-($x_lean),3)-0.1015*pow($xi-($x_lean),4))";
+denom 	#calc "pow((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5   ,2)";
+yC 	#calc "$m/$denom*((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5-$p + 2*$p*($xi-($x_lean))-pow($xi-($x_lean),2))";
+yC_	#calc "2.0*$m/$denom*($p-($xi-($x_lean)))";
+xi_ #calc "$xi - $yi*$yC_/sqrt(1+pow($yC_+0.0,2))";
+yi_ #calc "$yC + $yi/sqrt(1+pow($yC_+0.0,2))";
+x152i #calc "$xO + ($xi_-($xO))*cos($AOA/180.0*$pi+0.0) + ($yi_-($yO))*sin($AOA/180.0*$pi+0.0)";
+y152i #calc "$yO - ($xi_-($xO))*sin($AOA/180.0*$pi+0.0) + ($yi_-($yO))*cos($AOA/180.0*$pi+0.0)";
+
+xi #calc "$x_lean+0.6"; //
+yi 	#calc "-5*$tt*(0.2969*sqrt($xi+0.0-($x_lean))-0.1260*($xi-($x_lean))-0.3516*pow($xi-($x_lean),2)+0.2843*pow($xi-($x_lean),3)-0.1015*pow($xi-($x_lean),4))";
+denom 	#calc "pow((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5   ,2)";
+yC 	#calc "$m/$denom*((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5-$p + 2*$p*($xi-($x_lean))-pow($xi-($x_lean),2))";
+yC_	#calc "2.0*$m/$denom*($p-($xi-($x_lean)))";
+xi_ #calc "$xi - $yi*$yC_/sqrt(1+pow($yC_+0.0,2))";
+yi_ #calc "$yC + $yi/sqrt(1+pow($yC_+0.0,2))";
+x153i #calc "$xO + ($xi_-($xO))*cos($AOA/180.0*$pi+0.0) + ($yi_-($yO))*sin($AOA/180.0*$pi+0.0)";
+y153i #calc "$yO - ($xi_-($xO))*sin($AOA/180.0*$pi+0.0) + ($yi_-($yO))*cos($AOA/180.0*$pi+0.0)";
+
+xi #calc "$x_lean+0.68"; //
+yi 	#calc "-5*$tt*(0.2969*sqrt($xi+0.0-($x_lean))-0.1260*($xi-($x_lean))-0.3516*pow($xi-($x_lean),2)+0.2843*pow($xi-($x_lean),3)-0.1015*pow($xi-($x_lean),4))";
+denom 	#calc "pow((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5   ,2)";
+yC 	#calc "$m/$denom*((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5-$p + 2*$p*($xi-($x_lean))-pow($xi-($x_lean),2))";
+yC_	#calc "2.0*$m/$denom*($p-($xi-($x_lean)))";
+xi_ #calc "$xi - $yi*$yC_/sqrt(1+pow($yC_+0.0,2))";
+yi_ #calc "$yC + $yi/sqrt(1+pow($yC_+0.0,2))";
+x154i #calc "$xO + ($xi_-($xO))*cos($AOA/180.0*$pi+0.0) + ($yi_-($yO))*sin($AOA/180.0*$pi+0.0)";
+y154i #calc "$yO - ($xi_-($xO))*sin($AOA/180.0*$pi+0.0) + ($yi_-($yO))*cos($AOA/180.0*$pi+0.0)";
+
+xi #calc "$x_lean+0.69"; //
+yi 	#calc "-5*$tt*(0.2969*sqrt($xi+0.0-($x_lean))-0.1260*($xi-($x_lean))-0.3516*pow($xi-($x_lean),2)+0.2843*pow($xi-($x_lean),3)-0.1015*pow($xi-($x_lean),4))";
+denom 	#calc "pow((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5   ,2)";
+yC 	#calc "$m/$denom*((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5-$p + 2*$p*($xi-($x_lean))-pow($xi-($x_lean),2))";
+yC_	#calc "2.0*$m/$denom*($p-($xi-($x_lean)))";
+xi_ #calc "$xi - $yi*$yC_/sqrt(1+pow($yC_+0.0,2))";
+yi_ #calc "$yC + $yi/sqrt(1+pow($yC_+0.0,2))";
+x155i #calc "$xO + ($xi_-($xO))*cos($AOA/180.0*$pi+0.0) + ($yi_-($yO))*sin($AOA/180.0*$pi+0.0)";
+y155i #calc "$yO - ($xi_-($xO))*sin($AOA/180.0*$pi+0.0) + ($yi_-($yO))*cos($AOA/180.0*$pi+0.0)";
+
+
+
+
+//========= lean - top - trail - bottom (pivot) =============//
+
+xi #calc "$x_lean";
+yi 	#calc "5*$tt*(0.2969*sqrt($xi+0.0-($x_lean))-0.1260*($xi-($x_lean))-0.3516*pow($xi-($x_lean),2)+0.2843*pow($xi-($x_lean),3)-0.1015*pow($xi-($x_lean),4))";
+denom 	#calc "pow((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5   ,2)";
+yC 	#calc "$m/$denom*((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5-$p + 2*$p*($xi-($x_lean))-pow($xi-($x_lean),2))";
+yC_	#calc "2.0*$m/$denom*($p-($xi-($x_lean)))";
+xi_ #calc "$xi - $yi*$yC_/sqrt(1+pow($yC_+0.0,2))";
+yi_ #calc "$yC + $yi/sqrt(1+pow($yC_+0.0,2))";
+x1111111i #calc "$xO + ($xi_-($xO))*cos($AOA/180.0*$pi+0.0) + ($yi_-($yO))*sin($AOA/180.0*$pi+0.0)";
+y1111111i #calc "$yO - ($xi_-($xO))*sin($AOA/180.0*$pi+0.0) + ($yi_-($yO))*cos($AOA/180.0*$pi+0.0)";
+
+xi #calc "$x_lean+0.3";
+yi 	#calc "5*$tt*(0.2969*sqrt($xi+0.0-($x_lean))-0.1260*($xi-($x_lean))-0.3516*pow($xi-($x_lean),2)+0.2843*pow($xi-($x_lean),3)-0.1015*pow($xi-($x_lean),4))";
+denom 	#calc "pow((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5   ,2)";
+yC 	#calc "$m/$denom*((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5-$p + 2*$p*($xi-($x_lean))-pow($xi-($x_lean),2))";
+yC_	#calc "2.0*$m/$denom*($p-($xi-($x_lean)))";
+xi_ #calc "$xi - $yi*$yC_/sqrt(1+pow($yC_+0.0,2))";
+yi_ #calc "$yC + $yi/sqrt(1+pow($yC_+0.0,2))";
+x5555555i #calc "$xO + ($xi_-($xO))*cos($AOA/180.0*$pi+0.0) + ($yi_-($yO))*sin($AOA/180.0*$pi+0.0)";
+y5555555i #calc "$yO - ($xi_-($xO))*sin($AOA/180.0*$pi+0.0) + ($yi_-($yO))*cos($AOA/180.0*$pi+0.0)";
+
+xi #calc "$x_lean+0.3";
+yi 	#calc "-5*$tt*(0.2969*sqrt($xi+0.0-($x_lean))-0.1260*($xi-($x_lean))-0.3516*pow($xi-($x_lean),2)+0.2843*pow($xi-($x_lean),3)-0.1015*pow($xi-($x_lean),4))";
+denom 	#calc "pow((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5   ,2)";
+yC 	#calc "$m/$denom*((0.5-$p)*(2/$pi*atan(($xi+0.0-($x_lean)-$p)/$sigmaScale))+0.5-$p + 2*$p*($xi-($x_lean))-pow($xi-($x_lean),2))";
+yC_	#calc "2.0*$m/$denom*($p-($xi-($x_lean)))";
+xi_ #calc "$xi - $yi*$yC_/sqrt(1+pow($yC_+0.0,2))";
+yi_ #calc "$yC + $yi/sqrt(1+pow($yC_+0.0,2))";
+x4444444i #calc "$xO + ($xi_-($xO))*cos($AOA/180.0*$pi+0.0) + ($yi_-($yO))*sin($AOA/180.0*$pi+0.0)";
+y4444444i #calc "$yO - ($xi_-($xO))*sin($AOA/180.0*$pi+0.0) + ($yi_-($yO))*cos($AOA/180.0*$pi+0.0)";
+
+xi #calc "$x_lean+1";
+yi 	#calc "5*$tt*(0.2969*sqrt($xi+0.0-($x_lean))-0.1260*($xi-($x_lean))-0.3516*pow($xi-($x_lean),2)+0.2843*pow($xi-($x_lean),3)-0.1015*pow($xi-($x_lean),4))";
+denom 	#calc "pow((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5   ,2)";
+yC 	#calc "$m/$denom*((0.5-$p)*(2/$pi*atan(($xi-($x_lean)-$p)/$sigmaScale))+0.5-$p + 2*$p*($xi-($x_lean))-pow($xi-($x_lean),2))";
+yC_	#calc "2.0*$m/$denom*($p-($xi-($x_lean)))";
+xi_ #calc "$xi - $yi*$yC_/sqrt(1+pow($yC_+0.0,2))";
+yi_ #calc "$yC + $yi/sqrt(1+pow($yC_+0.0,2))";
+x7777777i #calc "$xO + ($xi_-($xO))*cos($AOA/180.0*$pi+0.0) + ($yi_-($yO))*sin($AOA/180.0*$pi+0.0)";
+y7777777i #calc "$yO - ($xi_-($xO))*sin($AOA/180.0*$pi+0.0) + ($yi_-($yO))*cos($AOA/180.0*$pi+0.0)";
+
+
+
+
+//============= vertices ==================//
+
+vertices
+(
+
+($xmin 0  -$w50)  // 0
+($x1111111i $y1111111i -$w50) // 1
+(0 $ymin  -$w50)  // 2
+(0 $ymax  -$w50)  // 3
+($x4444444i $y4444444i  -$w50)  // 4
+($x5555555i $y5555555i -$w50)    // 5
+($x_trail $ymin -$w50) // 6
+($x7777777i $y7777777i -$w50)     // 7
+($x_trail $ymax -$w50) // 8
+($xmax $ymin -$w50)    // 9
+($xmax 0 -$w50)        // 10
+($xmax $ymax -$w50)    // 11
+
+($xmin 0  $w50) //12
+($x1111111i $y1111111i $w50) // 13
+(0 $ymin  $w50) //14
+(0 $ymax  $w50) //15
+($x4444444i $y4444444i  $w50) //16
+($x5555555i $y5555555i  $w50) //17
+($x_trail $ymin $w50) //18
+($x7777777i $y7777777i $w50) //19
+($x_trail $ymax $w50) //20
+($xmax $ymin $w50) //21
+($xmax 0 $w50) //22
+($xmax $ymax $w50) //23
+
+);
+
+
+blocks
+(
+    hex (2 6 7 4 14 18 19 16 ) ($Nchord $Ny 1) simpleGrading (1 $grading_inv 1) //0 
+    hex (5 7 8 3 17 19 20 15) ($Nchord $Ny 1) simpleGrading (1 $grading 1)   //1
+    hex (6 9 10 7 18 21 22 19) ($Ntail $Ny 1) simpleGrading ($tailGrading $grading_inv 1)  //2
+    hex (7 10 11 8 19 22 23 20) ($Ntail $Ny 1) simpleGrading ($tailGrading $grading 1) //3
+    hex (0 2 4 1 12 14 16 13) ($Ny $Ny 1) simpleGrading (1 $grading_inv 1) //4
+    hex (0 1 5 3 12 13 17 15) ($Ny $Ny 1) simpleGrading ($grading_inv 1 1) //5
+);
+
+edges
+( 
+ arc 0 3 (${{0.707*$xmin}}  -${{0.707*$xmin}} -$w50)
+ arc 12 15 (${{0.707*$xmin}}  -${{0.707*$xmin}} $w50)
+ arc 0 2 (${{0.707*$xmin}}  ${{0.707*$xmin}} -$w50)
+ arc 12 14 (${{0.707*$xmin}}  ${{0.707*$xmin}} $w50)
+
+
+ BSpline 1 5 ( // upper lean -
+     ($x00i $y00i -$w50)
+     ($x0i $y0i -$w50)
+     ($x1i $y1i -$w50)
+     ($x2i $y2i -$w50)
+     ($x3i $y3i -$w50)
+     ($x4i $y4i -$w50)
+     ($x5i $y5i -$w50)
+            )
+ BSpline 5 7 ( // upper trail -
+    // ($x1000i $y1000i -$w50)
+     ($x100i $y100i -$w50)
+    ($x101i $y101i -$w50)
+     ($x102i $y102i -$w50)
+     ($x103i $y103i -$w50)
+     ($x104i $y104i -$w50)
+     ($x105i $y105i -$w50)
+            )
+
+ BSpline 13 17 ( // upper lean +
+     ($x00i $y00i $w50)
+     ($x0i $y0i $w50)
+     ($x1i $y1i $w50)
+     ($x2i $y2i $w50)
+     ($x3i $y3i $w50)
+     ($x4i $y4i $w50)
+     ($x5i $y5i $w50)
+                 )
+ BSpline 17 19 ( //upper trail +
+    // ($x1000i $y1000i $w50)
+     ($x100i $y100i $w50)
+     ($x101i $y101i $w50)
+     ($x102i $y102i $w50)
+     ($x103i $y103i $w50)
+     ($x104i $y104i $w50)
+     ($x105i $y105i $w50)
+            )
+
+ BSpline 1 4 ( // lower lean -
+     ($x500i $y500i -$w50)
+     ($x50i $y50i -$w50)
+     ($x51i $y51i -$w50)
+     ($x52i $y52i -$w50)
+     ($x53i $y53i -$w50)
+     ($x54i $y54i -$w50)
+     ($x55i $y55i -$w50)
+            )
+
+ BSpline 4 7 ( // lower trail -
+    // ($x1000i $y1000i -$w50)
+     ($x150i $y150i -$w50)
+     ($x151i $y151i -$w50)
+     ($x152i $y152i -$w50)
+     ($x153i $y153i -$w50)
+     ($x154i $y154i -$w50)
+     ($x155i $y155i -$w50)
+            )
+
+ BSpline 13 16 ( // lower lean +
+     ($x500i $y500i $w50)
+     ($x50i $y50i $w50)
+     ($x51i $y51i $w50)
+     ($x52i $y52i $w50)
+     ($x53i $y53i $w50)
+     ($x54i $y54i $w50)
+     ($x55i $y55i $w50)
+                 )
+
+ BSpline 16 19 ( // lower trail +
+    // ($x1000i $y1000i $w50)
+     ($x150i $y150i $w50)
+     ($x151i $y151i $w50)
+     ($x152i $y152i $w50)
+     ($x153i $y153i $w50)
+     ($x154i $y154i $w50)
+     ($x155i $y155i $w50)
+            )
+);
+
+boundary
+(
+   inlet
+    {
+        type patch;
+        faces
+        (
+            (3 0 12 15)
+            (0 2 14 12)
+        );
+    }//*/
+
+    outlet
+    {
+        type patch;
+        faces
+        (
+            (9 10 22 21)
+            (10 11 23 22)
+        );
+    }
+
+
+   top
+    {
+        type patch;
+        faces
+        (
+            (8 3 15 20)
+            (11 8 20 23)
+        );
+    }//*/
+
+    bottom
+    {
+        type patch;
+        faces
+        (
+            (2 6 18 14)
+            (6 9 21 18)
+        );
+    }//*/
+
+
+    airfoil
+    {
+        type wall;
+        faces
+        (
+            (5 7 19 17)
+            (7 4 16 19)
+            (1 5 17 13)
+            (4 1 13 16)
+        );
+    }
+
+
+
+    empty
+    {
+        type empty;
+        faces
+        (
+            (0 1 4 2)
+            (3 5 1 0)
+            (3 8 7 5)
+            (4 7 6 2)
+            (8 11 10 7)
+            (7 10 9 6)
+
+            (14 16 13 12)
+            (12 13 17 15)
+            (17 19 20 15)
+            (14 18 19 16)
+            (19 22 23 20)
+            (18 21 22 19)
+        );
+    }
+);//*/
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //
