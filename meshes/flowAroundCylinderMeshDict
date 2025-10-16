@@ -18,15 +18,15 @@ scale   1;
 
 // Geometric parameters
 
-r   0.5; // cylinder radius
+r   0.01; // cylinder radius
 CPD   20; // cells per diameter
 nz       1; // 2D set-up
 
 rOuter  ${{ 2*$r }};
-xmax    ${{ 40*$r }};;
-xmin    ${{ -4*$r }};;  // <0
-ymax    ${{ 12*$r }};;
-ymin    ${{ -12*$r }};; // <0
+xmax   ${{ 35*$r }};;
+xmin   ${{ -15*$r }};;  // <0
+ymax   ${{ 15*$r }};;
+ymin   ${{ -15*$r }};; // <0
 
 radialGrading  6;
 downstreamGrading 5;
@@ -34,8 +34,8 @@ upstreamGrading  2;
 verticalGrading 5;
 
 
-zmin   -0.5;  // Back/front locations
-zmax    0.5;
+zmin   ${{-0.1*$r}};  // Back/front locations
+zmax   ${{0.1*$r}};
 
 
 
@@ -50,7 +50,7 @@ rOuter45    ${{ $rOuter * sqrt(0.5) }};
 nRadial  ${{round($CPD/2/$r*($rOuter-$r))}};
 nQuarter ${{round(3.14159*$rOuter/8*(1+1/$radialGrading)/($rOuter-$r)*$nRadial)}};//10;
 nxOuter_upstream  ${{round((1+1/$radialGrading)*(-$rOuter-$xmin)/(1+1/$upstreamGrading)/($rOuter-$r)*$nRadial/2)}};
-nxOuter_downstream  ${{round((1+1/$radialGrading)*($xmax-$rOuter)/(1+$downstreamGrading)/($rOuter-$r)*$nRadial)}};;
+nxOuter_downstream  ${{round((1+1/$radialGrading)*($xmax-$rOuter)/(1+$downstreamGrading)/($rOuter-$r)*$nRadial)}};
 nyOuter_up  ${{round(($ymax-$rOuter45)*2/(1+$verticalGrading)/$rOuter45*$nQuarter)}};
 nyOuter_down $nyOuter_up;
 
@@ -90,9 +90,9 @@ vertices #codeStream
             /*17*/ {  $xmin, $ymax, $zmin },
             /*18*/ { -$rOuter45, $ymax, $zmin },
 
-            /* 19*/ { $r, 0, $zmin },
-            /* 20*/ { $rOuter, 0, $zmin },
-            /* 21*/ { $xmax, 0, $zmin },
+            /* 19*/ { $r, 0, $zmin },                      // unused
+            /* 20*/ { $rOuter, 0, $zmin },                // unused
+            /* 21*/ { $xmax, 0, $zmin },                 // unused
             /* 22*/ { $xmax, -$rOuter45, $zmin },
             /* 23*/ { $rOuter45, -$rOuter45, $zmin },
             /* 24*/ { $rInner45, -$rInner45, $zmin },
@@ -101,9 +101,9 @@ vertices #codeStream
             /* 27*/ { 0, $ymin, $zmin },
             /* 28*/ { 0, -$rOuter, $zmin },
             /*29*/ { 0, -$r, $zmin },
-            /*30*/ { -$r, 0, $zmin },
-            /*31*/ { -$rOuter, 0, $zmin },
-            /*32*/ {  $xmin, 0, $zmin },
+            /*30*/ { -$r, 0, $zmin },                 // unused
+            /*31*/ { -$rOuter, 0, $zmin },           // unused
+            /*32*/ {  $xmin, 0, $zmin },            // unused
             /*33*/ {  $xmin, -$rOuter45, $zmin },
             /*34*/ { -$rOuter45, -$rOuter45, $zmin },
             /*35*/ { -$rInner45, -$rInner45, $zmin },
@@ -142,13 +142,13 @@ blocks
 
 
     hex (29 28 23 24 67 66 61 62)    ($nRadial  $nQuarter $nz) grading ($radialGrading 1 1) // 10
-    hex (24 23 20 19 62 61 58 57)     ($nRadial  $nQuarter $nz) grading ($radialGrading 1 1) // 11
-    hex (23 22 21 20 61 60 59 58)     ($nxOuter_downstream  $nQuarter $nz) grading ($downstreamGrading 1 1) // 12
+    hex (24 23 1 0 62 61 39 38)     ($nRadial  $nQuarter $nz) grading ($radialGrading 1 1) // 11
+    hex (23 22 2 1 61 60 40 39)     ($nxOuter_downstream  $nQuarter $nz) grading ($downstreamGrading 1 1) // 12
     hex ( 26 25 22 23 64 63 60 61)     ($nxOuter_downstream  $nyOuter_down  $nz) grading ($downstreamGrading $verticalGrading_down 1) // 13
     hex ( 27 26 23 28 65 64 61 66)     ($nQuarter $nyOuter_down  $nz) grading (1 $verticalGrading_down 1) // 14
     hex (28 29 35 34 66 67 73 72)  ($nRadial  $nQuarter $nz) grading ($radialGrading_inv 1 1) // 15
-    hex (34 35 30 31 72 73 68 69) ($nRadial  $nQuarter $nz) grading ($radialGrading_inv 1 1) // 16
-    hex (33 34 31 32 71 72 69 70) ($nxOuter_upstream  $nQuarter $nz) grading ($upstreamGrading_inv 1 1) // 17
+    hex (34 35 11 12 72 73 49 50) ($nRadial  $nQuarter $nz) grading ($radialGrading_inv 1 1) // 16
+    hex (33 34 12 13 71 72 50 51) ($nxOuter_upstream  $nQuarter $nz) grading ($upstreamGrading_inv 1 1) // 17
     hex (36 37 34 33 74 75 72 71) ($nxOuter_upstream  $nyOuter_down  $nz) grading ($upstreamGrading_inv $verticalGrading_down 1) // 18
     hex (37 27 28 34 75 65 66 72)   ($nQuarter $nyOuter_down  $nz) grading (1 $verticalGrading_down 1) // 19
 );
@@ -175,22 +175,22 @@ edges
     arc 53 47 origin (0 0 $zmax)
 
     // Inner cylinder (down)
-    arc  19  24 origin (0 0 $zmin)
+    arc  0  24 origin (0 0 $zmin)
     arc  24 29 origin (0 0 $zmin)
-    arc  20  23 origin (0 0 $zmin)
+    arc  1  23 origin (0 0 $zmin)
     arc  23  28 origin (0 0 $zmin)
-    arc 57 62 origin (0 0 $zmax)
+    arc 38 62 origin (0 0 $zmax)
     arc 62 67 origin (0 0 $zmax)
-    arc 58 61 origin (0 0 $zmax)
+    arc 39 61 origin (0 0 $zmax)
     arc 61 66 origin (0 0 $zmax)
     // Intermediate cylinder (down)
-    arc 30 35 origin (0 0 $zmin)
+    arc 11 35 origin (0 0 $zmin)
     arc 35 29 origin (0 0 $zmin)
-    arc 31 34 origin (0 0 $zmin)
+    arc 12 34 origin (0 0 $zmin)
     arc 34 28 origin (0 0 $zmin)
-    arc 68 73 origin (0 0 $zmax)
+    arc 49 73 origin (0 0 $zmax)
     arc 73 67 origin (0 0 $zmax)
-    arc 69 72 origin (0 0 $zmax)
+    arc 50 72 origin (0 0 $zmax)
     arc 72 66 origin (0 0 $zmax)
 );
 
@@ -212,16 +212,16 @@ boundary
 		(14 17 18 15)
 		(12 13 14 15)
 
-		(19 20 23 24)
+		(0 1 23 24)
 		(24 23 28 29)
 		(29 28 34 35)
-		(35 34 31 30)
-		(21 22 23 20)
+		(35 34 12 11)
+		(2 22 23 1)
 		(23 22 25 26)
 		(28 23 26 27)
 		(34 28 27 37)
 		(33 34 37 36)
-		(32 31 33 34)//*/
+		(13 12 33 34)//*/
 
           	(42 43 38 39)
           	(43 42 47 48)
@@ -234,16 +234,16 @@ boundary
 		(53 56 55 52)
 		(53 52 51 50)
 
-		(62 61 58 57)
+		(62 61 39 38)
 		(67 66 61 62)
 		(73 72 66 67)
-		(68 69 72 73)
-		(58 61 60 59)
+		(49 50 72 73)
+		(39 61 60 40)
 		(64 63 60 61)
 		(65 64 61 66)
 		(75 65 66 72)
 		(74 75 72 71)
-		(72 71 69 70)//*/
+		(72 71 50 51)//*/
         );
     }//*/
     outlet
@@ -253,7 +253,7 @@ boundary
         (
             (2 3 41 40)
             (3 6 44 41)
-            (59 60 22 21)
+            (40 60 22 2)
             (60 63 25 22)
         );
     }
@@ -286,7 +286,7 @@ boundary
         (
             (14 13 51 52)
             (17 14 52 55)
-            (71 70 32 33)
+            (71 51 13 33)
             (74 71 33 36)
         );
     }
@@ -300,9 +300,9 @@ boundary
             (16 10 48 54)
             (11 16 54 49)
             (67 62 24 29)
-            (62 57 19 24)
+            (62 38 0 24)
             (73 67 29 35)
-            (68 73 35 30)
+            (49 73 35 11)
         );
     }
 );//*/
