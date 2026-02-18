@@ -15,6 +15,9 @@ This repository contains OpenFOAM cases and their parts, as well as codes for Op
 
 * __SIMPLE_axysimmetric_jet__ &mdash; OpenFOAM case for axissymmetric jet in wedge geometry
 
+* __StreamlinesCurvature__ &mdash; OpenFOAM function object for calculating the stramlines curvature
+
+
 * __QHD_wave-attractor__ &mdash; OpenFOAM case for wave attractor calculation using _mulesQHD_ solver
 
 * _OpenFOAM_data_python_loading.ipynb_ &mdash; OpenFOAM case data loader to python (postprocessing or raw case data)
