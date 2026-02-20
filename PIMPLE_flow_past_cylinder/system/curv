@@ -1,0 +1,13 @@
+// Copy this file to system/ folder and run
+// postProcess -func curv
+
+curv
+{
+    type            readFields;
+    libs            (fieldFunctionObjects);
+    fields          (U);
+    type            curv;
+    libs            (fieldNNturbFunctionObjects);
+    executeControl  writeTime;
+    writeControl    writeTime;
+}
